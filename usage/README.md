@@ -23,7 +23,7 @@ How to use it:
 
 - Use python3
 - Install DataHub cli: `pip install acryl-datahub`
-- Run `datahub init` , this will guide you through configuring datahub cli to connect to your instance, the server url should be: [https://<customer>.acryl.io/gms](https://miro.acryl.io/gms) and adding the access token that you created.
+- Run `datahub init` , this will guide you through configuring datahub cli to connect to your instance, the server url should be: https://<customer>.acryl.io/gms and adding the access token that you created.
 - Update the python script to download the time period you are interested in (line 11 and 13). I would advise downloading in batches of 1 day.
 - Run the script :)
 
