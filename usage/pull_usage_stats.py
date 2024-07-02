@@ -16,7 +16,7 @@ PAGE_SIZE=10000
 
 session, gms_host = get_session_and_host()
 
-url = f"{gms_host}/openapi/v1/analytics/datahub_usage_events/_search"
+url = f"{gms_host}/openapi/v2/analytics/datahub_usage_events/_search"
 
 def get_timestamp(date_str):
     dt_obj = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S,%f')
