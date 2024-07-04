@@ -1,0 +1,1 @@
+This script is mainly for non-acryl hosted instances to get summary report for all ingestion over past 7 days.
