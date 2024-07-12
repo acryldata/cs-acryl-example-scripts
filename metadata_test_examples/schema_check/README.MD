@@ -1,0 +1,1 @@
+This test can be used to add tags for schema existence. Then this allows to filter in the API on tags.

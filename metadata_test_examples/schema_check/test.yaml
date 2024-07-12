@@ -1,0 +1,29 @@
+on:
+    types:
+        - dataset
+rules:
+    and:
+        -
+            property: schemaFields.length
+            operator: greater_than
+            values:
+                - '0'
+actions:
+    passing:
+        -
+            type: add_tags
+            values:
+                - 'urn:li:tag:Has Schema'
+        -
+            type: remove_tags
+            values:
+                - 'urn:li:tag:Missing Schema'
+    failing:
+        -
+            type: add_tags
+            values:
+                - 'urn:li:tag:Missing Schema'
+        -
+            type: remove_tags
+            values:
+                - 'urn:li:tag:Has Schema'
