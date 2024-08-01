@@ -49,7 +49,7 @@ def add_tag(graph, entity_urn, tag_urn):
     return response
 
 
-gms_endpoint = "https://wbinsights.acryl.io/gms"
+gms_endpoint = "https://dev01.acryl.io/gms"
 token = os.getenv("DATAHUB_TOKEN")
 
 # Initialize the graph
@@ -71,7 +71,6 @@ active_monitors = [
 
 tag_added = add_tag(
     graph,
-    "urn:li:assertion:dXJuOmxpOmRhdGFzZXQ6KHVybjpsaTpkYXRhUGxhdGZvcm06cmVkc2hpZnQscnMuZG9ra2VuLnByb2QuZG9ra2VuX3Byb2Qud2JhX2V2ZW50cy5jb3JlX2hlYXJ0YmVhdCxQUk9EKQ==,__system__sla",
-    "urn:li:tag:test1",
+    "urn:li:assertion:ID",
+    "urn:li:tag:test",
 )
-print(tag_added)
