@@ -38,7 +38,7 @@ def get_dataset_assertions(graph):
     return response
 
 
-gms_endpoint = "https://dev01.acryl.io/gms"
+gms_endpoint = "https://wbinsights.acryl.io/gms"
 token = os.getenv("DATAHUB_TOKEN")
 
 # Initialize the graph
@@ -47,3 +47,13 @@ graph = DataHubGraph(DatahubClientConfig(server=gms_endpoint, token=token))
 # Execute the query
 upstreams_object = get_upstreams(graph)
 assertion_object = get_dataset_assertions(graph)
+
+
+assertions = assertion_object["dataset"]["assertions"]["assertions"]
+
+# Filter assertions with active monitors
+active_monitors = [
+    assertion
+    for assertion in assertions
+    if assertion["monitor"]["info"]["status"]["mode"] == "ACTIVE"
+]

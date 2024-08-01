@@ -15,6 +15,13 @@ query getDatasetAssertions($urn: String!) {
             actor
           }
         }
+        monitor {
+          info {
+            status {
+              mode
+            }
+          }
+        }
         runEvents(status: COMPLETE, limit: 1) {
           total
           failed
