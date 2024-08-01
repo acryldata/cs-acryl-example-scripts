@@ -29,3 +29,13 @@ def get_dataset_assertions_vars(entity_urn: str) -> dict:
         "urn": "urn:li:dataset:(urn:li:dataPlatform:redshift,rs.dokken.prod.dokken_prod.wba_events.core_heartbeat,PROD)"
     }
     return variables
+
+
+def get_add_tag_vars(entity_urn: str, tag_urn: str) -> dict:
+    variables = {
+        "input": {
+            "resourceUrn": entity_urn,
+            "tagUrn": tag_urn,
+        }
+    }
+    return variables

@@ -38,6 +38,17 @@ def get_dataset_assertions(graph):
     return response
 
 
+def add_tag(graph, entity_urn, tag_urn):
+
+    variables = get_add_tag_vars(entity_urn, tag_urn)
+
+    gql_query = get_graph_query(GRAPHQL_QUERY_FOLDER_PATH + "addTag.gql")
+
+    response = graph.execute_graphql(query=gql_query, variables=variables)
+
+    return response
+
+
 gms_endpoint = "https://wbinsights.acryl.io/gms"
 token = os.getenv("DATAHUB_TOKEN")
 
@@ -57,3 +68,10 @@ active_monitors = [
     for assertion in assertions
     if assertion["monitor"]["info"]["status"]["mode"] == "ACTIVE"
 ]
+
+tag_added = add_tag(
+    graph,
+    "urn:li:assertion:dXJuOmxpOmRhdGFzZXQ6KHVybjpsaTpkYXRhUGxhdGZvcm06cmVkc2hpZnQscnMuZG9ra2VuLnByb2QuZG9ra2VuX3Byb2Qud2JhX2V2ZW50cy5jb3JlX2hlYXJ0YmVhdCxQUk9EKQ==,__system__sla",
+    "urn:li:tag:test1",
+)
+print(tag_added)
