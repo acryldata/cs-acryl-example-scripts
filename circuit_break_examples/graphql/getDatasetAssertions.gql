@@ -7,6 +7,13 @@ query getDatasetAssertions($urn: String!) {
       assertions {
         urn
         type
+        tags{
+          tags {
+            tag {
+              urn
+            }
+          }
+        }
         info {
           type
           description

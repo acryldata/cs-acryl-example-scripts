@@ -39,3 +39,13 @@ def get_add_tag_vars(entity_urn: str, tag_urn: str) -> dict:
         }
     }
     return variables
+
+
+def get_remove_tag_vars(entity_urn: str, tag_urn: str) -> dict:
+    variables = {
+        "input": {
+            "resourceUrn": entity_urn,
+            "tagUrn": tag_urn,
+        }
+    }
+    return variables
