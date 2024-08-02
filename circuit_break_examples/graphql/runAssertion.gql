@@ -1,0 +1,342 @@
+mutation runAssertion($urn: String!, $saveResult: Boolean) {
+  runAssertion(urn: $urn, saveResult: $saveResult) {
+    ...assertionResultDetails
+    __typename
+  }
+}
+
+fragment assertionResultDetails on AssertionResult {
+  type
+  actualAggValue
+  rowCount
+  missingCount
+  unexpectedCount
+  externalUrl
+  nativeResults {
+    key
+    value
+    __typename
+  }
+  error {
+    type
+    properties {
+      key
+      value
+      __typename
+    }
+    __typename
+  }
+  assertion {
+    ...assertionInfo
+    __typename
+  }
+  parameters {
+    ...assertionEvaluationParameters
+    __typename
+  }
+  assertionInferenceDetails {
+    generatedAt
+    __typename
+  }
+  __typename
+}
+
+fragment assertionInfo on AssertionInfo {
+  type
+  description
+  lastUpdated {
+    time
+    actor
+    __typename
+  }
+  datasetAssertion {
+    datasetUrn
+    scope
+    aggregation
+    operator
+    parameters {
+      value {
+        value
+        type
+        __typename
+      }
+      minValue {
+        value
+        type
+        __typename
+      }
+      maxValue {
+        value
+        type
+        __typename
+      }
+      __typename
+    }
+    fields {
+      urn
+      path
+      __typename
+    }
+    nativeType
+    nativeParameters {
+      key
+      value
+      __typename
+    }
+    logic
+    __typename
+  }
+  freshnessAssertion {
+    type
+    entityUrn
+    schedule {
+      type
+      cron {
+        cron
+        timezone
+        __typename
+      }
+      fixedInterval {
+        unit
+        multiple
+        __typename
+      }
+      __typename
+    }
+    filter {
+      type
+      sql
+      __typename
+    }
+    __typename
+  }
+  sqlAssertion {
+    type
+    entityUrn
+    statement
+    changeType
+    operator
+    parameters {
+      ...assertionStdParametersDetails
+      __typename
+    }
+    __typename
+  }
+  fieldAssertion {
+    type
+    entityUrn
+    filter {
+      type
+      sql
+      __typename
+    }
+    fieldValuesAssertion {
+      field {
+        path
+        type
+        nativeType
+        __typename
+      }
+      transform {
+        type
+        __typename
+      }
+      operator
+      parameters {
+        ...assertionStdParametersDetails
+        __typename
+      }
+      failThreshold {
+        type
+        value
+        __typename
+      }
+      excludeNulls
+      __typename
+    }
+    fieldMetricAssertion {
+      field {
+        path
+        type
+        nativeType
+        __typename
+      }
+      metric
+      operator
+      parameters {
+        ...assertionStdParametersDetails
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  volumeAssertion {
+    type
+    entityUrn
+    filter {
+      type
+      sql
+      __typename
+    }
+    rowCountTotal {
+      operator
+      parameters {
+        ...assertionStdParametersDetails
+        __typename
+      }
+      __typename
+    }
+    rowCountChange {
+      type
+      operator
+      parameters {
+        ...assertionStdParametersDetails
+        __typename
+      }
+      __typename
+    }
+    incrementingSegmentRowCountTotal {
+      operator
+      parameters {
+        ...assertionStdParametersDetails
+        __typename
+      }
+      segment {
+        ...incrementingSegmentSpecDetails
+        __typename
+      }
+      __typename
+    }
+    incrementingSegmentRowCountChange {
+      type
+      operator
+      parameters {
+        ...assertionStdParametersDetails
+        __typename
+      }
+      segment {
+        ...incrementingSegmentSpecDetails
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  schemaAssertion {
+    entityUrn
+    compatibility
+    fields {
+      path
+      type
+      nativeType
+      __typename
+    }
+    schema {
+      fields {
+        fieldPath
+        type
+        nativeDataType
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  customAssertion {
+    type
+    entityUrn
+    field {
+      urn
+      path
+      __typename
+    }
+    logic
+    __typename
+  }
+  source {
+    type
+    created {
+      time
+      actor
+      __typename
+    }
+    __typename
+  }
+  externalUrl
+  __typename
+}
+
+fragment assertionStdParametersDetails on AssertionStdParameters {
+  value {
+    value
+    type
+    __typename
+  }
+  minValue {
+    value
+    type
+    __typename
+  }
+  maxValue {
+    value
+    type
+    __typename
+  }
+  __typename
+}
+
+fragment incrementingSegmentSpecDetails on IncrementingSegmentSpec {
+  field {
+    path
+    type
+    nativeType
+    __typename
+  }
+  transformer {
+    type
+    nativeType
+    __typename
+  }
+  __typename
+}
+
+fragment assertionEvaluationParameters on AssertionEvaluationParameters {
+  type
+  datasetFreshnessParameters {
+    sourceType
+    auditLog {
+      operationTypes
+      userName
+      __typename
+    }
+    field {
+      type
+      nativeType
+      path
+      kind
+      __typename
+    }
+    __typename
+  }
+  datasetVolumeParameters {
+    sourceType
+    __typename
+  }
+  datasetFieldParameters {
+    sourceType
+    changedRowsField {
+      type
+      nativeType
+      path
+      kind
+      __typename
+    }
+    __typename
+  }
+  datasetSchemaParameters {
+    sourceType
+    __typename
+  }
+  __typename
+}

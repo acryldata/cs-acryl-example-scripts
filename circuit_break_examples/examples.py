@@ -73,6 +73,17 @@ def get_assertion_details(graph, assertion_urn):
     return response
 
 
+def run_assertion(graph, assertion_urn):
+
+    variables = get_run_assertion_vars(assertion_urn)
+
+    gql_query = get_graph_query(GRAPHQL_QUERY_FOLDER_PATH + "runAssertion.gql")
+
+    response = graph.execute_graphql(query=gql_query, variables=variables)
+
+    return response
+
+
 gms_endpoint = "https://dev01.acryl.io/gms"
 token = os.getenv("DATAHUB_TOKEN")
 
@@ -107,4 +118,4 @@ tag_removed = remove_tag(
 
 assertion_details = get_assertion_details(graph, "urn:li:assertion:ID")
 
-print(assertion_details)
+run_assertion_response = run_assertion(graph, "urn:li:assertion:ID")
