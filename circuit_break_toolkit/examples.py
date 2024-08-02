@@ -11,7 +11,8 @@ from graphql.gql_variable_definitions import (
 )
 from typing import Dict, Any
 
-GRAPHQL_QUERY_FOLDER_PATH = "/Users/ethancartwright/Desktop/customer_code_v2/cs-acryl-example-scripts/circuit_break_toolkit/graphql/"
+# Relative path to the GraphQL queries folder
+GRAPHQL_QUERY_FOLDER_PATH = os.path.join(os.path.dirname(__file__), "graphql/")
 
 
 def get_graph_query(file_path: str) -> str:
