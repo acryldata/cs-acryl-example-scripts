@@ -49,3 +49,8 @@ def get_remove_tag_vars(entity_urn: str, tag_urn: str) -> dict:
         }
     }
     return variables
+
+
+def get_assertion_details_vars(assertion_urn: str) -> dict:
+    variables = {"assertionUrn": assertion_urn}
+    return variables
