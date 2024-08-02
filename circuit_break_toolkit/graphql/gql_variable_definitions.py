@@ -25,9 +25,7 @@ def get_scroll_across_lineage_vars(
 
 
 def get_dataset_assertions_vars(entity_urn: str) -> dict:
-    variables = {
-        "urn": "urn:li:dataset:(urn:li:dataPlatform:redshift,rs.dokken.prod.dokken_prod.wba_events.core_heartbeat,PROD)"
-    }
+    variables = {"urn": entity_urn}
     return variables
 
 
