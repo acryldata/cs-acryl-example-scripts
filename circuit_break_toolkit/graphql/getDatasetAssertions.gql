@@ -1,0 +1,57 @@
+query getDatasetAssertions($urn: String!) {
+  dataset(urn: $urn) {
+    assertions(start: 0, count: 1000, includeSoftDeleted: false) {
+      start
+      count
+      total
+      assertions {
+        urn
+        type
+        tags{
+          tags {
+            tag {
+              urn
+            }
+          }
+        }
+        info {
+          type
+          description
+          lastUpdated {
+            time
+            actor
+          }
+        }
+        monitor {
+          info {
+            status {
+              mode
+            }
+          }
+        }
+        runEvents(status: COMPLETE, limit: 1) {
+          total
+          failed
+          succeeded
+          runEvents {
+            timestampMillis
+            status
+            result {
+              actualAggValue
+              rowCount
+              missingCount
+              unexpectedCount
+              error {
+                type
+                properties {
+                  key
+                  value
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

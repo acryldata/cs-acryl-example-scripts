@@ -1,0 +1,3 @@
+mutation addTag($input: TagAssociationInput!) {
+    addTag(input: $input)
+}

@@ -1,0 +1,13 @@
+query scrollAcrossLineage($input: ScrollAcrossLineageInput!) {
+    scrollAcrossLineage(input: $input) {
+        nextScrollId
+        total
+        searchResults {
+            degree
+            entity {
+                urn
+                type
+            }
+        }
+    }
+}

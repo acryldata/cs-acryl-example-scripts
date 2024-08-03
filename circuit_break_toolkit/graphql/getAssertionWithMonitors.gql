@@ -1,0 +1,47 @@
+query getAssertionWithMonitors($assertionUrn: String!) {
+  assertion(urn: $assertionUrn) {
+    urn
+    type
+    info {
+      type
+    }
+    tags {
+      tags {
+        tag {
+          urn
+        }
+      }
+    }
+    runEvents(status: COMPLETE, limit: 1) {
+      total
+      failed
+      succeeded
+      runEvents {
+        timestampMillis
+        status
+        result {
+          type
+          actualAggValue
+        }
+      }
+    }
+    monitor: relationships(
+      input: {types: ["Evaluates"], direction: INCOMING, start: 0, count: 1}
+    ) {
+      relationships {
+        entity {
+          ... on Monitor {
+            urn
+            type
+            info {
+              type
+              status {
+                mode
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
