@@ -1,0 +1,28 @@
+query listIngestionSources($input: ListIngestionSourcesInput!) {
+    listIngestionSources(input: $input) {
+        start
+        count
+        total
+        ingestionSources {
+            urn
+            type
+            name
+            config {
+                recipe
+                version
+            }
+            executions(start: 0, count: 10) {
+                executionRequests {
+                    urn
+                    result {
+                        status
+                        startTimeMs
+                        structuredReport {
+                            serializedValue
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

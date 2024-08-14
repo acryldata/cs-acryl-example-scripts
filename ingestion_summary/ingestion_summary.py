@@ -3,11 +3,20 @@ import json
 from dataclasses import dataclass, field
 from typing import Dict, List, Any
 import os
+import textwrap
 
 import logging
 
+from datahub.ingestion.graph.client import (
+    DataHubGraph,
+    get_default_graph,
+)
+
 logger = logging.getLogger(__name__)
 
+# Utility to get path of executed script regardless of where it is executed from
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 def get_now_utc_datetime() -> datetime.datetime:
     return datetime.datetime.now(datetime.timezone.utc)
@@ -109,59 +118,34 @@ def get_session_login_as(username: str, password: str, url: str) -> requests.Ses
     return session
 
 def list_ingestions(
-    url: str, session: requests.Session, start: int = 0, count: int = 10
+    client: DataHubGraph, start: int = 0, count: int = 10
 ):
-    json = {
-        "query": """query listIngestionSources($input: ListIngestionSourcesInput!) {
-  listIngestionSources(input: $input) {
-    start
-    count
-    total
-    ingestionSources {
-      urn
-      type
-      name
-      config {
-        recipe
-        version
-      }
-      executions(start: 0, count: 10) {
-        executionRequests {
-          urn
-          result {
-            status
-            startTimeMs
-            structuredReport {
-              serializedValue
-            }
-          }
-        }
-      }
-    }
-  }
-}
-""",
-        "variables": {"input": {"start": start, "count": count, "query": "*"}},
-    }
-    response = session.post(f"{url}/api/v2/graphql", json=json)
-    return response.json().get("data", {}).get("listIngestionSources", {})
+    with open(os.path.join(__location__, "listIngestionSources.graphql")) as f:
+        query = f.read()
+
+        graphql_query: str = textwrap.dedent(query)
+        variables: dict = {"input": {"start": start, "count": count, "query": "*"}}
+
+        response = client.execute_graphql(graphql_query, variables)
+        return response.get("listIngestionSources", {})
 
 
-def get_ingestion_summary(url: str, user: str, password: str):
+def get_ingestion_summary(client: DataHubGraph):
     days_ago_millis = x_days_ago_millis(7)
     result = IngestionSummary()
     result.run_at = datetime.datetime.now()
     # random large number will be replaced by actual total
     result.total = 10000
 
-    session = get_session_login_as(
-        url=url, username=user, password=password
-    )
-    url = session.url
+    
+    #session = get_session_login_as(
+    #    url=url, username=user, password=password
+    #)
+    #url = session.url
     cur = 0
     while cur < result.total:
         ingestions_list = list_ingestions(
-            url=url, session=session, start=cur
+            client=client, start=cur
         )
         result.total = ingestions_list.get("total")
         for jj, ingestion_source_in in enumerate(
@@ -239,4 +223,5 @@ def get_ingestion_summary(url: str, user: str, password: str):
 
 
 if __name__ == "__main__":
-    get_ingestion_summary(url="URL", user="admin", password="PASSWORD")
+    client = get_default_graph()
+    get_ingestion_summary(client)
