@@ -6,7 +6,7 @@ Example of how customers can pull DataHub’s raw analytical data to perform ana
 
 ## How it works
 
-The script makes use of the `openapi/v1/analytics/datahub_usage_events/_search` HTTP endpoint that the platform team created to surface all usage events in ElasticSearch we currently track in DataHub and saves them into a JSON file.
+The script makes use of the `openapi/v2/analytics/datahub_usage_events/_search` HTTP endpoint that the platform team created to surface all usage events in ElasticSearch we currently track in DataHub and saves them into a JSON file.
 
 The script batches pulling down records in chunks of 10k events. This is the maximum that Elastic allows for a single request. 
 
