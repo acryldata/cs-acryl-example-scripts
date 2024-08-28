@@ -9,7 +9,6 @@ from datahub.ingestion.graph.client import (
 from datahub.ingestion.graph.filters import SearchFilterRule
 from datahub.metadata.schema_classes import DatasetKeyClass
 from datahub.utilities.urns.urn import guess_entity_type
-from tqdm import tqdm
 from rich.progress import Progress
 from rich.logging import RichHandler
 
@@ -121,8 +120,8 @@ with Progress() as progress:
                                 urns_deleted = urns_deleted +1
                             else:
                                 datahub.delete_entity(key)
-                                refs = datahub.delete_references_to_urn(key)
-                                logger.info(f"Deleted: {key} and {refs.count} references")
+                                references_count, related_aspects = datahub.delete_references_to_urn(key)
+                                logger.info(f"Deleted: {key} and {references_count} references")
                                 urns_deleted = urns_deleted +1
                         else:
                             logger.debug(f"Skipping {key} created by {response[key]['datasetKey']['systemMetadata']['lastRunId']}")
