@@ -30,7 +30,7 @@ filters: List[SearchFilterRule] = [
 
 # get_urns_by_filter performs a scrollAcrossEntities that returns an iterable of urns, lazily loaded (this reduces load on DataHub)
 # This access Elasticsearch
-urns: Iterable[str] = graph.get_urns_by_filter(query="*", entity_types=["dataset"], batch_size=1000, filter=filters)
+urns: Iterable[str] = graph.get_urns_by_filter(query="*", entity_types=["dataset"], batch_size=1000, extraFilters=filters)
 
 # For each returned result get the owner and domain aspects, by querying SQL
 for urn in urns:
