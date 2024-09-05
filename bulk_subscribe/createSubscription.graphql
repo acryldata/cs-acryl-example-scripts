@@ -1,0 +1,13 @@
+mutation createSubscription($input: CreateSubscriptionInput!) {
+    createSubscription(input: $input) {
+        subscriptionUrn,
+        actorUrn,
+        subscriptionTypes,
+        entityChangeTypes {
+            entityChangeType, 
+            filter {
+                includeAssertions
+            }
+       }
+    }
+}
