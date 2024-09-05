@@ -7,13 +7,11 @@ from datahub.ingestion.graph.client import (
     get_default_graph,
 )
 from datahub.ingestion.graph.filters import SearchFilterRule
-from datahub.metadata.schema_classes import DatasetKeyClass
 from datahub.utilities.urns.urn import guess_entity_type
 from rich.progress import Progress
 from rich.logging import RichHandler
 
 
-#logging.basicConfig(level=logging.INFO, handlers=[RichHandler()])
 logging.basicConfig(
     level=logging.INFO, format="%(message)s", datefmt="[%X]", handlers=[RichHandler()]
 )
