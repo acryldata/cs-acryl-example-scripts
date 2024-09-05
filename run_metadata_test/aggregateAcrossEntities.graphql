@@ -1,0 +1,10 @@
+query aggregateAcrossEntities($input: AggregateAcrossEntitiesInput!) {
+    aggregateAcrossEntities(input: $input) {
+        facets {
+            aggregations {
+                value,
+                count,
+            }
+        }
+    }
+}

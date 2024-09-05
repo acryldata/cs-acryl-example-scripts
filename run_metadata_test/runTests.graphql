@@ -1,0 +1,3 @@
+mutation runTests($urn: String!) {
+    runTests(urn: $urn)
+}    
