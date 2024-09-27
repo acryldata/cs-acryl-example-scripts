@@ -5,7 +5,7 @@ from datahub.ingestion.graph.client import (
     get_default_graph,
 )
 from datahub.ingestion.graph.filters import SearchFilterRule
-from datahub.metadata.schema_classes import SubscriptionInfoClass
+from datahub.metadata.schema_classes import SubscriptionInfoClass, EntityChangeDetailsClass
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ search_body = {
     "input": "*",
     "entity": "subscription",
     "start": 0,
-    "count": 10,
+    "count": 1,
     "filter": {"or": filters},
 }
 
@@ -48,4 +48,14 @@ for urn in urns:
     subscription: Optional[SubscriptionInfoClass] = client.get_aspect(entity_urn=urn, aspect_type=SubscriptionInfoClass)
     if not subscription:
         logger.warning(f"No subscription info found for urn: {urn}")
-    print(subscription.to_obj().get("actorUrn"))
+
+    subscribed_entity_change_types: List[EntityChangeDetailsClass] = subscription.entityChangeTypes
+
+    if not subscribed_entity_change_types:
+        logger.warning(f"No entity change types found")
+
+    filtered_list = [change for change in subscribed_entity_change_types 
+                     if change.entityChangeType in ["DEPRECATED", "OWNER_ADDED"]]
+
+    if (len(filtered_list) > 0):
+        print(f"Subscription: {urn} is listening for unintended changes: {subscribed_entity_change_types}")
