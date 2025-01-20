@@ -1,4 +1,6 @@
 venv/*
 .env
+.envrc
 .devbox/*
 *.lock
+.vscode/*

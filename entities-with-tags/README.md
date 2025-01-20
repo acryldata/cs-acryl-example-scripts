@@ -1,0 +1,1 @@
+An example for receiving back which datasets have a particular tag got a given platform (with optional subtype filter) 
