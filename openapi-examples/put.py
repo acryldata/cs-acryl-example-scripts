@@ -1,0 +1,59 @@
+import os
+import logging
+import json
+from typing import Optional, Iterable
+from datahub.ingestion.graph.client import (
+    DataHubGraph,
+    get_default_graph
+)
+
+
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(level=logging.INFO,
+    format='%(message)s'
+)
+
+# Utility to get path of executed script regardless of where it is executed from
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+# Connect to the DataHub instance configured in your ~/.datahubenv file.
+client: DataHubGraph = get_default_graph()
+
+def scrollEntity(client: DataHubGraph, entity: str, variables: dict) -> Iterable: # type: ignore
+    endpoint = f"{client.config.server}/openapi/v3/entity/{entity}"
+
+    first_iter = True
+    scroll_id: Optional[str] = None
+    while first_iter or scroll_id:
+        first_iter = False
+        variables["scrollId"] = scroll_id
+
+        response: dict = client._get_generic(endpoint, variables)
+
+        scroll_id = response.get("scrollId", None)
+        for entity in response.get("entities", []):
+            yield entity
+
+        logger.debug(f"Scrolling to next page: {scroll_id}")
+
+
+def putEntity(client: DataHubGraph, entity: str, payload: list[dict]):
+    endpoint = f"{client.config.server}/openapi/v3/entity/{entity}"
+
+    response = client._post_generic(endpoint, payload)
+
+    logger.warning(response)
+#results = scrollEntity(client, "datahubpolicy", {
+#    "query": "*",
+#    "sort": "urn"
+#})
+
+file_name = "/Users/pedro/dev/acryl/cs-acryl-example-scripts/policies-cus-3245.json"
+
+if __name__ == "__main__":
+    with open(file_name) as f:
+        policies: list[dict] = json.loads(f.read())
+        putEntity(client, "datahubpolicy", policies)
+

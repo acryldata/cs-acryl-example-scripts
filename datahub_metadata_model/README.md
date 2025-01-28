@@ -1,0 +1,1 @@
+Example script on how to extract [DataHub's Metadata Model](https://datahubproject.io/docs/metadata-modeling/metadata-model) directly from a cli package to make schema-informed programatic operations.
