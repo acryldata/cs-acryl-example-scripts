@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 from dataclasses import dataclass
 from avro.schema import RecordSchema
@@ -63,7 +64,7 @@ def load_entity_registry() -> DataHubIndex:
                 if aspect_name not in schemas:
                     aspect = ASPECT_NAME_MAP.get(aspect_name)
                     if aspect:
-                        schemas[aspect] = aspect.RECORD_SCHEMA
+                        schemas[aspect_name] = aspect.RECORD_SCHEMA
                     else:
                         logger.warning(f"Aspect: {aspect_name} not found in ASPECT_NAME_MAP")
             
@@ -74,3 +75,5 @@ def load_entity_registry() -> DataHubIndex:
 
 ## Load DataHub's Entity Registry
 index: DataHubIndex = load_entity_registry()
+
+print((index.schemas.get("datasetKey")))

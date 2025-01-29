@@ -1,1 +1,23 @@
-Example script on how to extract [DataHub's Metadata Model](https://datahubproject.io/docs/metadata-modeling/metadata-model) directly from a cli package to make schema-informed programatic operations.
+Example script on how to extract [DataHub's Metadata Model](https://datahubproject.io/docs/metadata-modeling/metadata-model) directly from a cli package to make schema-informed programmatic operations.
+
+This works by introspecting the current installed acryl-datahub package's internals for the list of entities that a DataHub version supports, what it's aspects are and the avro schema of those aspects (in a JSON representation).
+
+The output of `load_entity_registry()` function is a `DataHubIndex` object comprised of 2 properties:
+- `registry`: A dictionary of entity name to definition that entity: its category, key aspect and list of aspects that compose the entity:
+```python
+# This is the output of `index.registry.get("dataset")`
+# In other words what is the registry definition for the dataset entity
+
+DataHubRegistryEntityEntry(
+    category='core', 
+    key='datasetKey', 
+    aspects=['datasetKey', 'viewProperties', 'subTypes', 'datasetProfile', 'datasetUsageStatistics', 'operation', 'domains', 'proposals', 'schemaProposals', 'schemaMetadata', 'status', 'container', 'deprecation', 'usageFeatures', 'storageFeatures', 'lineageFeatures', 'testResults', 'siblings', 'embed', 'incidentsSummary', 'inferredNeighbors', 'inferredMetadata', 'schemaFieldsInferredMetadata', 'schemaFieldsInferredNeighbors', 'assertionsSummary', 'datasetProperties', 'editableDatasetProperties', 'datasetDeprecation', 'datasetUpstreamLineage', 'upstreamLineage', 'institutionalMemory', 'ownership', 'editableSchemaMetadata', 'globalTags', 'glossaryTerms', 'browsePaths', 'dataPlatformInstance', 'browsePathsV2', 'anomaliesSummary', 'access', 'structuredProperties', 'forms', 'partitionsSummary', 'share', 'origin', 'documentation', 'entityInferenceMetadata', 'versionProperties'])
+``` 
+- `schemas`: A dictionary of aspect names to the Avro Schema of the aspects.
+```python
+
+# Output of index.schemas.get("datasetKey")
+# This is the schema definition of the datasetKey aspect.
+
+{"type": "record", "Aspect": {"name": "datasetKey", "keyForEntity": "dataset", "entityCategory": "core", "entityAspects": ["viewProperties", "subTypes", "datasetProfile", "datasetUsageStatistics", "operation", "domains", "proposals", "schemaProposals", "schemaMetadata", "status", "container", "deprecation", "usageFeatures", "storageFeatures", "lineageFeatures", "testResults", "siblings", "embed", "incidentsSummary", "inferredNeighbors", "inferredMetadata", "schemaFieldsInferredMetadata", "schemaFieldsInferredNeighbors", "assertionsSummary", "datasetProperties", "editableDatasetProperties", "datasetDeprecation", "datasetUpstreamLineage", "upstreamLineage", "institutionalMemory", "ownership", "editableSchemaMetadata", "globalTags", "glossaryTerms", "browsePaths", "dataPlatformInstance", "browsePathsV2", "anomaliesSummary", "access", "structuredProperties", "forms", "partitionsSummary", "share", "origin", "documentation", "entityInferenceMetadata", "versionProperties"], "entityDoc": "Datasets represent logical or physical data assets stored or represented in various data platforms. Tables, Views, Streams are all instances of datasets."}, "name": "DatasetKey", "namespace": "com.linkedin.pegasus2avro.metadata.key", "fields": [{"Searchable": {"enableAutocomplete": true, "fieldType": "URN"}, "java": {"class": "com.linkedin.pegasus2avro.common.urn.Urn"}, "Urn": "Urn", "type": "string", "name": "platform", "doc": "Data platform urn associated with the dataset"}, {"Searchable": {"boostScore": 10.0, "enableAutocomplete": true, "fieldName": "id", "fieldType": "WORD_GRAM"}, "type": "string", "name": "name", "doc": "Unique guid for dataset"}, {"Searchable": {"addToFilters": true, "fieldType": "TEXT_PARTIAL", "filterNameOverride": "Environment", "queryByDefault": false}, "type": {"type": "enum", "symbolDocs": {"CORP": "Designates corporation fabrics", "DEV": "Designates development fabrics", "EI": "Designates early-integration fabrics", "NON_PROD": "Designates non-production fabrics", "PRD": "Alternative Prod spelling", "PRE": "Designates pre-production fabrics", "PROD": "Designates production fabrics", "QA": "Designates quality assurance fabrics", "RVW": "Designates review fabrics", "SANDBOX": "Designates sandbox fabrics", "STG": "Designates staging fabrics", "TEST": "Designates testing fabrics", "TST": "Alternative Test spelling", "UAT": "Designates user acceptance testing fabrics"}, "name": "FabricType", "namespace": "com.linkedin.pegasus2avro.common", "symbols": ["DEV", "TEST", "QA", "UAT", "EI", "PRE", "STG", "NON_PROD", "PROD", "CORP", "RVW", "PRD", "TST", "SANDBOX"], "doc": "Fabric group type"}, "name": "origin", "doc": "Fabric type where dataset belongs to or where it was generated."}], "doc": "Key for a Dataset"}
+```

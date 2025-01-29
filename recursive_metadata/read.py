@@ -19,7 +19,7 @@ __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 
-def find_urn_li_strings(data):
+def find_urn_li_strings(data: dict[str, Any]) -> list[str]:
     result = []
     
     def recursive_search(obj):
@@ -39,7 +39,7 @@ def find_urn_li_strings(data):
     return result
 
 
-def download_urn(client, data, queue, root_urn):
+def download_urn(client: DataHubGraph, data: dict[str, Any], queue: deque, root_urn: str) -> None: 
 
     if root_urn in data:
         logger.warning(f"Skipping {root_urn}")
@@ -51,14 +51,12 @@ def download_urn(client, data, queue, root_urn):
     aspects: dict = payload["aspects"]
 
     data[urn] = aspects
-    #logger.info(f"Appending {urn} to our data object")
 
     for aspect in aspects:
         aspect_payload = aspects.get(aspect)
         urn_references = set(find_urn_li_strings(aspect_payload))
         for ref in urn_references:
             if ref not in data.keys():
-                #logger.info(f"Added {ref} for processing")
                 queue.append(ref)
 
 

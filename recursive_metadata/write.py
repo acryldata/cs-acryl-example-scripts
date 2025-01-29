@@ -64,7 +64,7 @@ def load_entity_registry() -> DataHubIndex:
                 if aspect_name not in schemas:
                     aspect = ASPECT_NAME_MAP.get(aspect_name)
                     if aspect:
-                        schemas[aspect] = aspect.RECORD_SCHEMA
+                        schemas[aspect_name] = aspect.RECORD_SCHEMA
                     else:
                         logger.warning(f"Aspect: {aspect_name} not found in ASPECT_NAME_MAP")
             
