@@ -1,0 +1,1 @@
+Example script on how to get the list of user urns that are native users and not SSO users.
