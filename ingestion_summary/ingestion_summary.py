@@ -6,6 +6,8 @@ import os
 import textwrap
 
 import logging
+import requests
+
 
 from datahub.ingestion.graph.client import (
     DataHubGraph,
@@ -15,14 +17,16 @@ from datahub.ingestion.graph.client import (
 logger = logging.getLogger(__name__)
 
 # Utility to get path of executed script regardless of where it is executed from
-__location__ = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
 
 def get_now_utc_datetime() -> datetime.datetime:
     return datetime.datetime.now(datetime.timezone.utc)
 
+
 def x_days_ago_datetime(days: int) -> datetime.datetime:
     return get_now_utc_datetime() - datetime.timedelta(days=days)
+
 
 def x_days_ago_millis(days: int) -> int:
     return int(x_days_ago_datetime(days).timestamp() * 1000)
@@ -103,8 +107,7 @@ class IngestionSummary:
             "ingestion_sources": valid_sources,
             "top_records_written": self.top_records_written,
         }
-    
-import requests
+
 
 def get_session_login_as(username: str, password: str, url: str) -> requests.Session:
     session = requests.Session()
@@ -117,9 +120,8 @@ def get_session_login_as(username: str, password: str, url: str) -> requests.Ses
     response.raise_for_status()
     return session
 
-def list_ingestions(
-    client: DataHubGraph, start: int = 0, count: int = 10
-):
+
+def list_ingestions(client: DataHubGraph, start: int = 0, count: int = 10):
     with open(os.path.join(__location__, "listIngestionSources.graphql")) as f:
         query = f.read()
 
@@ -137,16 +139,13 @@ def get_ingestion_summary(client: DataHubGraph):
     # random large number will be replaced by actual total
     result.total = 10000
 
-    
-    #session = get_session_login_as(
+    # session = get_session_login_as(
     #    url=url, username=user, password=password
-    #)
-    #url = session.url
+    # )
+    # url = session.url
     cur = 0
     while cur < result.total:
-        ingestions_list = list_ingestions(
-            client=client, start=cur
-        )
+        ingestions_list = list_ingestions(client=client, start=cur)
         result.total = ingestions_list.get("total")
         for jj, ingestion_source_in in enumerate(
             ingestions_list.get("ingestionSources")
@@ -192,8 +191,8 @@ def get_ingestion_summary(client: DataHubGraph):
                         serialized_value = json.loads(
                             structured_report.get("serializedValue")
                         )
-                    except:
-                        logger.error(
+                    except Exception:
+                        logger.exception(
                             f"Failed to parse structured report for {ingestion_source.urn}"
                         )
                     total_records_written = 0
@@ -207,9 +206,9 @@ def get_ingestion_summary(client: DataHubGraph):
                             ingestion_source.urn
                         )
                     if total_records_written_new > total_records_written:
-                        result.top_records_written[
-                            ingestion_source.urn
-                        ] = total_records_written_new
+                        result.top_records_written[ingestion_source.urn] = (
+                            total_records_written_new
+                        )
                     execution_res.report = serialized_value
             if ingestion_source.executions:
                 ingestion_source.last_execution_start_time = max(
@@ -217,7 +216,7 @@ def get_ingestion_summary(client: DataHubGraph):
                 )
     write_result(
         dir_name=".",
-        file_name=f"ingestion_summary.json",
+        file_name="ingestion_summary.json",
         content=result.to_serializable_dict(),
     )
 

@@ -1,9 +1,6 @@
 import json
 import logging
-from typing import (
-    Iterable, 
-    Optional
-)
+from typing import Iterable, Optional
 from datahub.ingestion.graph.client import (
     DataHubGraph,
     get_default_graph,
@@ -27,8 +24,7 @@ tag_prefix = "data__producer__owner__"
 # "email"
 # as part of the urn
 tag_urns: Iterable[str] = client.get_urns_by_filter(
-    query=f'/q urn: *{tag_prefix}* AND urn: *email*', 
-    entity_types=["tag"]
+    query=f"/q urn: *{tag_prefix}* AND urn: *email*", entity_types=["tag"]
 )
 
 # For each relevant data producer owner's email tag:
@@ -36,34 +32,38 @@ tag_urns: Iterable[str] = client.get_urns_by_filter(
 # - Pull all tags for that dataset that have the tag prefix
 # - Generate group information based on those tags
 # - Push group information to DataHub
-# 
+#
 # Assumption: Other group related information (team name & slack channel) exists in the same dataset as tags
 for tag_urn in tag_urns:
-    
     dataset_urns: Iterable[str] = client.get_urns_by_filter(
-        entity_types=["dataset"], 
-        extra_or_filters=[{
-            "field": "tags",
-            "condition": "IN",
-            "values": [tag_urn],
-            }],
-        batch_size=1)
-    
+        entity_types=["dataset"],
+        extra_or_filters=[
+            {
+                "field": "tags",
+                "condition": "IN",
+                "values": [tag_urn],
+            }
+        ],
+        batch_size=1,
+    )
+
     if not dataset_urns:
         logger.info(f"No dataset found for tag: {tag_urn}")
         continue
-    
+
     dataset_urn: str = next(iter(dataset_urns))
-    
+
     # Get all tags from the dataset that has the email data producer tag
     tag_aspect: Optional[GlobalTagsClass] = client.get_tags(dataset_urn)
-    
+
     if not tag_aspect:
-        logger.warning(f"No tags found for dataset {dataset_urn}, this should not be happening as we are pulling datasets based on whether they have tags. Please reach out to Acryl to debug.")
-        
+        logger.warning(
+            f"No tags found for dataset {dataset_urn}, this should not be happening as we are pulling datasets based on whether they have tags. Please reach out to Acryl to debug."
+        )
+
     team_name: str = None
     team_slack: str = None
-    
+
     # Extract team name & slack from the tags that exist in the dataset
     for tag_association in tag_aspect.tags:
         tag: str = tag_association.tag
@@ -89,9 +89,9 @@ for tag_urn in tag_urns:
         .replace("-nytimes_com", "@nytimes.com")
         .replace("--", "-")
     )
-        
+
     group_urn: str = f"urn:li:corpGroup:{email}"
-    mcp: MetadataChangeProposalWrapper =  MetadataChangeProposalWrapper(
+    mcp: MetadataChangeProposalWrapper = MetadataChangeProposalWrapper(
         entityUrn=group_urn,
         aspect=CorpGroupInfoClass(
             displayName=team_name,
@@ -102,7 +102,7 @@ for tag_urn in tag_urns:
             groups=[],
         ),
     )
-    
+
     if dry_run:
         logger.warning(f"{json.dumps(mcp.aspect.to_obj())}")
     else:

@@ -3,25 +3,19 @@ import json
 import logging
 from typing import Any
 from collections import deque
-from datahub.ingestion.graph.client import (
-    DataHubGraph,
-    get_default_graph
-)
+from datahub.ingestion.graph.client import DataHubGraph, get_default_graph
 
 logger = logging.getLogger(__name__)
 
-logging.basicConfig(level=logging.INFO,
-    format='%(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 # Utility to get path of executed script regardless of where it is executed from
-__location__ = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 
 def find_urn_li_strings(data: dict[str, Any]) -> list[str]:
     result = []
-    
+
     def recursive_search(obj):
         if isinstance(obj, dict):
             # Search through dictionary values
@@ -34,13 +28,14 @@ def find_urn_li_strings(data: dict[str, Any]) -> list[str]:
         elif isinstance(obj, str) and obj.startswith("urn:li:"):
             # Found a matching string
             result.append(obj)
-    
+
     recursive_search(data)
     return result
 
 
-def download_urn(client: DataHubGraph, data: dict[str, Any], queue: deque, root_urn: str) -> None: 
-
+def download_urn(
+    client: DataHubGraph, data: dict[str, Any], queue: deque, root_urn: str
+) -> None:
     if root_urn in data:
         logger.warning(f"Skipping {root_urn}")
         return
@@ -83,5 +78,5 @@ while queue:
     download_urn(client, data, deque(), urn)
 
 
-with open('data.json', 'w') as file:
+with open("data.json", "w") as file:
     json.dump(data, file, indent=4)

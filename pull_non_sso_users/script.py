@@ -1,22 +1,18 @@
 import os
 import logging
-import json
 from typing import Optional, Iterable
-from datahub.ingestion.graph.client import (
-    DataHubGraph,
-    get_default_graph
-)
+from datahub.ingestion.graph.client import DataHubGraph, get_default_graph
 
 logger = logging.getLogger(__name__)
 
 # Utility to get path of executed script regardless of where it is executed from
-__location__ = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 # Connect to the DataHub instance configured in your ~/.datahubenv file.
-client=DataHubGraph = get_default_graph()
+client: DataHubGraph = get_default_graph()
 
-def scrollEntity(client: DataHubGraph, entity: str, variables: dict) -> Iterable: # type: ignore
+
+def scrollEntity(client: DataHubGraph, entity: str, variables: dict) -> Iterable:  # type: ignore
     endpoint = f"{client.config.server}/openapi/v3/entity/{entity}"
 
     first_iter = True
@@ -34,16 +30,12 @@ def scrollEntity(client: DataHubGraph, entity: str, variables: dict) -> Iterable
         logger.debug(f"Scrolling to next page: {scroll_id}")
 
 
-search_body = {
-    "query": "*",
-    "sort": "urn"
-}
+search_body = {"query": "*", "sort": "urn"}
 
 results = scrollEntity(client, "corpuser", search_body)
 
 for user in results:
-    #if user["urn"] == "urn:li:corpuser:ahabib@tripadvisor.com":
+    # if user["urn"] == "urn:li:corpuser:ahabib@tripadvisor.com":
     #    print(json.dumps(user))
     if "corpUserCredentials" in user:
-       print(user["urn"])
-    
+        print(user["urn"])
