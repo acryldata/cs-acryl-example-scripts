@@ -1,18 +1,20 @@
 import os
 import json
 from datetime import datetime
-from datahub.cli.cli_utils import get_session_and_host
+from datahub.ingestion.graph.client import get_default_graph
 
 # Inputs
 OUTPUT_FILE = "output.json"
 
-START_DATE = "14/11/2023 00:00:00,00"
+START_DATE = "01/01/2025 00:00:00,00"
 
-END_DATE = "14/11/2023 23:59:59,99"
+END_DATE = "01/11/2025 23:59:59,99"
 
 PAGE_SIZE = 10000
 
-session, gms_host = get_session_and_host()
+graph = get_default_graph()
+gms_host = graph._gms_server
+session = graph._session
 
 url = f"{gms_host}/openapi/v2/analytics/datahub_usage_events/_search"
 
