@@ -9,6 +9,7 @@ DATAHUB_GMS_TOKEN_ENV = "DATAHUB_GMS_TOKEN"
 FRONTEND_URL_ENV = "DATAHUB_FRONTEND_URL"
 GMS_URL_ENV = "DATAHUB_GMS_URL"
 
+
 def get_gms_token_env() -> str:
     return os.getenv(DATAHUB_GMS_TOKEN_ENV)
 
@@ -38,6 +39,7 @@ def get_gms_url():
 def _get_graphql_url():
     return f"{get_frontend_url()}/api/graphql"
 
+
 def _graphql_query(graph: DataHubGraph, query, vars):
     response = graph._post_generic(
         url=_get_graphql_url(),
@@ -46,6 +48,7 @@ def _graphql_query(graph: DataHubGraph, query, vars):
     if "errors" in response:
         click.secho(f"Error: {response['errors']}", fg="red")
     return response
+
 
 def get_session_login_as(username: str, password: str, url: str) -> requests.Session:
     session = requests.Session()
@@ -128,6 +131,7 @@ def raise_incident(
             }
         },
     )
+
 
 def get_graph():
     return DataHubGraph(

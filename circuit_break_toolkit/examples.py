@@ -1,5 +1,4 @@
 import os
-import time
 from datahub.ingestion.graph.client import DatahubClientConfig, DataHubGraph
 from graphql.gql_variable_definitions import (
     get_scroll_across_lineage_vars,

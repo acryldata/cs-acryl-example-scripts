@@ -1,4 +1,4 @@
-# WARNING: THIS IS A SLOW IMPLEMENTATION BECAUSE WE HAVE TO LOAD THE GRAPH INTO MEMORY 
+# WARNING: THIS IS A SLOW IMPLEMENTATION BECAUSE WE HAVE TO LOAD THE GRAPH INTO MEMORY
 # AND THEN RE-COMPUTE THE QUEUE STATE.
 #
 # The output of this file is a file that can be used as a state file for subsequent executions:
@@ -18,12 +18,17 @@ import textwrap
 from collections import deque
 from urllib.parse import urlparse
 from typing import Optional
-from datahub.ingestion.graph.client import DataHubGraph, DatahubClientConfig, get_url_and_token
+from datahub.ingestion.graph.client import (
+    DataHubGraph,
+    DatahubClientConfig,
+    get_url_and_token,
+)
+
 
 def graphql_scroll_across_lineage(graph: DataHubGraph, entity_urn: str, direction: str):
     with open("scrollAcrossLineage.graphql") as f:
         query = f.read()
-        
+
         graphql_query = textwrap.dedent(query)
 
         variables = {
@@ -31,15 +36,19 @@ def graphql_scroll_across_lineage(graph: DataHubGraph, entity_urn: str, directio
                 "urn": entity_urn,
                 "direction": direction,
                 "query": "",
-                "count": 5000, # pull 5000 results each time at most
-                "orFilters": [{
-                    "and": [{
-                        "field": "degree",
-                        "condition": "EQUAL",
-                        "values": ["1"],
-                        "negated": "false"
-                        }]
-                }]
+                "count": 5000,  # pull 5000 results each time at most
+                "orFilters": [
+                    {
+                        "and": [
+                            {
+                                "field": "degree",
+                                "condition": "EQUAL",
+                                "values": ["1"],
+                                "negated": "false",
+                            }
+                        ]
+                    }
+                ],
             }
         }
 
@@ -57,33 +66,47 @@ def graphql_scroll_across_lineage(graph: DataHubGraph, entity_urn: str, directio
             for entry in data["searchResults"]:
                 yield entry["entity"]
 
-def traverseGraph(server: DataHubGraph, direction: str, queue: deque = deque(), seen_entities: dict = {}):
+
+def traverseGraph(
+    server: DataHubGraph,
+    direction: str,
+    queue: deque = deque(),
+    seen_entities: dict = {},
+):
     while queue:
         node = queue.popleft()
         print(json.dumps(node))
         lineage = graphql_scroll_across_lineage(server, node["urn"], direction)
         for row in lineage:
             if row["urn"] not in seen_entities:
-                obj = {"urn": row["urn"], "parent": node["urn"], "level": int(node["level"]) + 1}
-                seen_entities[row["urn"]] = {"parent": obj["parent"], "level": obj["level"]}
+                obj = {
+                    "urn": row["urn"],
+                    "parent": node["urn"],
+                    "level": int(node["level"]) + 1,
+                }
+                seen_entities[row["urn"]] = {
+                    "parent": obj["parent"],
+                    "level": obj["level"],
+                }
                 queue.append(obj)
 
-root_urn=""
-state_file="state.json"
+
+root_urn = ""
+state_file = "state.json"
 root_node = {"urn": root_urn, "parent": "", "level": 0}
 
 queue = deque()
 state: dict = {}
 
-with open(f"./{state_file}", 'r') as f:
+with open(f"./{state_file}", "r") as f:
     last_level = 0
     for line in f:
         obj = json.loads(line)
         state[obj["urn"]] = {"parent": obj["parent"], "level": obj["level"]}
         queue.append(obj)
-        last_level=obj["level"]
+        last_level = obj["level"]
 
-    if not queue: # if queue empty
+    if not queue:  # if queue empty
         state = root_node
         queue.append(root_node)
     else:

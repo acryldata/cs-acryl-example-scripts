@@ -47,10 +47,10 @@ def build_search_query() -> str:
 
 
 def build_search_input(
-        tag_name: str,
-        platform_code: str,
-        subtype: Optional[str] = None,
-        start: int = 0,
+    tag_name: str,
+    platform_code: str,
+    subtype: Optional[str] = None,
+    start: int = 0,
 ) -> Dict[str, Any]:
     """Build the input parameters for the search query."""
     and_filters = [
@@ -58,27 +58,26 @@ def build_search_input(
             "field": "platform",
             "condition": "EQUAL",
             "values": [make_data_platform_urn(platform_code)],
-            "negated": False
+            "negated": False,
         },
         {
             "field": "tags",
             "condition": "EQUAL",
             "values": [make_tag_urn(tag_name)],
-            "negated": False
+            "negated": False,
         },
-        {
-            "field": "_entityType",
-            "values": ["DATASET"]
-        }
+        {"field": "_entityType", "values": ["DATASET"]},
     ]
 
     if subtype:
-        and_filters.append({
-            "field": "typeNames",
-            "values": [subtype],
-            "condition": "EQUAL",
-            "negated": False
-        })
+        and_filters.append(
+            {
+                "field": "typeNames",
+                "values": [subtype],
+                "condition": "EQUAL",
+                "negated": False,
+            }
+        )
 
     return {
         "input": {
@@ -87,7 +86,7 @@ def build_search_input(
             "start": start,
             "count": 1000,
             "filters": [],
-            "orFilters": [{"and": and_filters}]
+            "orFilters": [{"and": and_filters}],
         }
     }
 
@@ -104,20 +103,19 @@ def process_entity_info(entity: Dict[str, Any]) -> Dict[str, Any]:
             for tag in entity.get("globalTags", {}).get("tags", [])
             if tag.get("tag", {}).get("name")
         ],
-        "subtypes": entity.get("subTypes", {}).get("typeNames", [])
+        "subtypes": entity.get("subTypes", {}).get("typeNames", []),
     }
 
 
 def get_entities_by_filters(
-        tag_name: str,
-        platform_code: str,
-        graph: DataHubGraph,
-        subtype: Optional[str] = None,
-        output_to_std_out: bool = False,
+    tag_name: str,
+    platform_code: str,
+    graph: DataHubGraph,
+    subtype: Optional[str] = None,
+    output_to_std_out: bool = False,
 ) -> Optional[List[Dict[str, Any]]]:
     """Get entities using search query with filters."""
     try:
-
         query = build_search_query()
         entities_info = []
         start = 0
@@ -165,9 +163,9 @@ def get_entities_by_filters(
 
 def main():
     """Main execution function."""
-    
+
     graph = get_default_graph()
-    
+
     # Example using Snowflake platform
     dremio_results = get_entities_by_filters(
         tag_name="Usage - B",
@@ -183,8 +181,8 @@ def main():
         tag_name="__default_high_queries",
         platform_code="bigquery",
         graph=graph,
-        #subtype="View",
-        #output_to_std_out=True,
+        # subtype="View",
+        # output_to_std_out=True,
     )
     logger.info(f"BigQuery results: {bigquery_results}")
 
