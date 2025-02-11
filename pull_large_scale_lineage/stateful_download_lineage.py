@@ -21,7 +21,7 @@ from typing import Optional
 from datahub.ingestion.graph.client import (
     DataHubGraph,
     DatahubClientConfig,
-    get_url_and_token,
+    get_default_graph,
 )
 
 
@@ -118,7 +118,9 @@ with open(f"./{state_file}", "r") as f:
         while queue[0]["level"] < last_level - 1:
             print(json.dumps(queue.popleft()))
 
-(url, token) = get_url_and_token()
+default_graph = get_default_graph()
+url = default_graph._gms_server
+token = default_graph._token
 parsed_url = urlparse(url)
 datahub_server = DataHubGraph(DatahubClientConfig(server=url, token=token))
 traverseGraph(datahub_server, "UPSTREAM", queue, state)
