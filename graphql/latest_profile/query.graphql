@@ -1,0 +1,48 @@
+{
+  dataset(urn: "urn:li:dataset:(urn:li:dataPlatform:snowflake,datahub_community.datahub_slack.message_block_field,PROD)") {
+    latestFullTableProfile: datasetProfiles(
+      limit: 1,
+      filter: {and: [{field: "partitionSpec.partition", values: ["FULL_TABLE_SNAPSHOT", "SAMPLE"]}]}
+    ){
+      ...datasetProfileFields
+    }
+    latestPartitionProfile: datasetProfiles(
+      limit: 1
+      filter: {and: [{field: "partitionSpec.partition", values: ["SAMPLE", "FULL_TABLE_SNAPSHOT"], negated: true}]}
+    ) {
+    	...datasetProfileFields
+    __typename
+  }
+  }
+}
+fragment datasetProfileFields on DatasetProfile {
+  rowCount
+  columnCount
+  sizeInBytes
+  timestampMillis
+  partitionSpec {
+    type
+    partition
+    timePartition {
+      startTimeMillis
+      durationMillis
+      __typename
+    }
+    __typename
+  }
+  fieldProfiles {
+    fieldPath
+    uniqueCount
+    uniqueProportion
+    nullCount
+    nullProportion
+    min
+    max
+    mean
+    median
+    stdev
+    sampleValues
+    __typename
+  }
+  __typename
+}
