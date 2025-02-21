@@ -4,9 +4,10 @@
 # dependencies = [
 #     "acryl-datahub",
 #     "acryl-datahub-cloud",
-#     "loguru",
 # ]
 # ///
+
+import logging
 
 import acryl_datahub_cloud.metadata.schema_classes as models
 import click
@@ -14,7 +15,9 @@ from datahub.emitter.mce_builder import get_sys_time
 from datahub.emitter.mcp import MetadataChangeProposalWrapper
 from datahub.ingestion.graph.client import get_default_graph
 from datahub.metadata.urns import DatasetUrn
-from loguru import logger
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 gql = """\
 query listTermProposals($endTimestampMillis: Long, $count: Int) {
