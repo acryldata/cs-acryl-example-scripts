@@ -1,7 +1,5 @@
-{
-  searchAcrossEntities(
-    input: {types: [DATASET], query: "*", orFilters: [{and: [{field: "ownershipTypeUrn", values: ["urn:li:ownershipType:__system__data_steward"]}]}], start: 0, count: 10}
-  ) {
+query searchAcrossEntities($input: SearchAcrossEntitiesInput!) {
+  searchAcrossEntities(input: $input) {
     start
     count
     total
@@ -28,5 +26,30 @@
         }
       }
     }
+  }
+}
+
+{
+  "input": {
+    "query": "*",
+    "types": [
+      "DATASET"
+    ],
+    "orFilters": [
+      {
+        "and": {
+          "field": "ownershipTypeUrn",
+          "values": [
+            "urn:li:ownershipType:__system__business_owner"
+          ]
+        }
+      },
+      {
+        "and": {
+          "field": "ownerTypes.urn:li:ownershipType:__system__business_owner",
+          "condition": "EXISTS"
+        }
+      }
+    ]
   }
 }
