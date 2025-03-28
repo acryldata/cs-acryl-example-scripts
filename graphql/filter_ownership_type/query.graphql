@@ -1,0 +1,55 @@
+query searchAcrossEntities($input: SearchAcrossEntitiesInput!) {
+  searchAcrossEntities(input: $input) {
+    start
+    count
+    total
+    searchResults {
+      entity {
+        urn
+        type
+        ... on Dataset {
+          name
+          ownership {
+            owners {
+              owner {
+                ... on CorpUser {
+                  urn
+                  type
+                }
+                ... on CorpGroup {
+                  urn
+                  type
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+{
+  "input": {
+    "query": "*",
+    "types": [
+      "DATASET"
+    ],
+    "orFilters": [
+      {
+        "and": {
+          "field": "ownershipTypeUrn",
+          "values": [
+            "urn:li:ownershipType:__system__business_owner"
+          ]
+        }
+      },
+      {
+        "and": {
+          "field": "ownerTypes.urn:li:ownershipType:__system__business_owner",
+          "condition": "EXISTS"
+        }
+      }
+    ]
+  }
+}
