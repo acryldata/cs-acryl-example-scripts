@@ -1,0 +1,1 @@
+After `0.3.10.x` DataHub Cloud release this script needs to be run to fix filtering of ownership types to work correctly.
