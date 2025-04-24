@@ -4,7 +4,7 @@ import progressbar
 from typing import Iterable
 from datahub.emitter.mcp import MetadataChangeProposalWrapper
 from datahub.ingestion.graph.client import get_default_graph
-from datahub.metadata._schema_classes import (
+from datahub.metadata.schema_classes import (
     OwnershipClass,
     OwnerClass,
     OwnershipTypeClass,
