@@ -1,13 +1,13 @@
 {
-  "$schema":  "https://raw.githubusercontent.com/jetify-com/devbox/0.12.0/.schema/devbox.schema.json",
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.12.0/.schema/devbox.schema.json",
   "packages": {
     "python": {
-        "version": "3.10",
-        "disable_plugin": false
-      },
-      "uv": {
-        "version": "latest"
-      }
+      "version": "3.11",
+      "disable_plugin": false
+    },
+    "uv": {
+      "version": "latest"
+    }
   },
   "env": {
     "VENV_DIR": "$PWD/venv",
