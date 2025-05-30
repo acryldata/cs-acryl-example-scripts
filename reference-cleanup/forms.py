@@ -19,8 +19,15 @@ from datahub.metadata.schema_classes import (
 from datahub.ingestion.graph.client import DataHubGraph, get_default_graph
 from rich.progress import Progress
 from rich.logging import RichHandler
+from rich.console import Console
 
-logging.basicConfig(level=logging.INFO)
+console = Console()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    handlers=[RichHandler(console=console, rich_tracebacks=True)]
+)
 logger = logging.getLogger(__name__)
 
 dry_run: bool = True
@@ -221,7 +228,7 @@ variables = {
             ]
         },{
             "and": [{
-                "field": "completedForms",
+                "field": "incompleteForms",
                 "condition": "EXISTS"
             }]
         }]
@@ -234,16 +241,17 @@ logger.debug(f"Variables: {json.dumps(variables)}")
 # pushing deletes at the same time causing the elasticsearch scroll to be inconsistent
 # 
 scroll_results = list(scrollGraphQL(client, scroll_gql, variables))
+logger.info(f"[{client.config.server}] Found {len(scroll_results)} entries with form references")
 urn_refs: set = set()
 
-with Progress() as progress:
-    task1 = progress.add_task("Processing assets with form urn references...", total=len(scroll_results))
+with Progress(console=console) as progress:
+    task1 = progress.add_task("Processing assets with form urn references.", total=len(scroll_results))
     for result in scroll_results:
         progress.update(
                 task1,
                 advance=1,
                 description=str(
-                    f"Processing: {result['urn']}"
+                    f"Processing asset: {result['urn']}"
                 ),
             )
         if "forms" not in result:
@@ -255,15 +263,15 @@ with Progress() as progress:
         if completedForms is not None:
             urn_refs.update([obj["form"]["urn"] for obj in completedForms])
         if incompleteForms is not None:
-            urn_refs.update([obj["form"]["urn"] for obj in incompleteForms])    
+            urn_refs.update([obj["form"]["urn"] for obj in incompleteForms])
 
-    task2 = progress.add_task("Processing assets with form urn references...", total=len(scroll_results))
+    logger.info(f"[{client.config.server}] Found {len(urn_refs)} unique form references")
+
+    task2 = progress.add_task("Checking if form urns exist.", total=len(urn_refs))
     for form_urn in urn_refs:
-        progress.update(task2, advance=1, description=str(f"Checking: {form_urn}"))
+        progress.update(task2, advance=1, description=str(f"Checking form: {form_urn}"))
         if not client.exists(form_urn):
-            logger.info(f"Form urn {form_urn} does not exist, must delete references")
+            logger.info(f"[{client.config.server}] Delete ghost urn reference: {form_urn}")
             if not dry_run:
                 client.delete_references_to_urn(form_urn)
-
-
         
