@@ -7,35 +7,9 @@ from datahub.ingestion.graph.client import get_default_graph
 from datahub.metadata.schema_classes import CorpUserSettingsClass
 
 graph = get_default_graph()
-users = []
 
-scroll_id = None
-while True:
-    ret = graph.execute_graphql("""query scrollAcrossEntities($input: ScrollAcrossEntitiesInput!) {
-      scrollAcrossEntities(input: $input) {
-        nextScrollId
-        searchResults {
-          entity {
-            urn
-          }
-        }
-      }
-    }""", variables={
-      "input": {
-        "types": "CORP_USER",
-        "query": "*",
-        "count": 1000,
-        "scrollId": scroll_id
-      }
-    }).get("scrollAcrossEntities", {})
-    scroll_id = ret.get("nextScrollId")
-    results = ret.get("searchResults", [])
-    print(f"Got {len(results)} users in current scroll")
-    users.extend([result['entity']['urn'] for result in results])
-    if not scroll_id:
-        break
-
-print(f"Finally received {len(users)} users")
+users = [*graph.get_urns_by_filter(entity_types=["CORP_USER"], batch_size=1000)]
+print(f"Retrieved {len(users)} users")
 
 no_aspect_count = 0
 no_change_count = 0
