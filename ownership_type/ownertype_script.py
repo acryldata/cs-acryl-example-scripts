@@ -30,7 +30,7 @@ def main():
             urns=[dataset_urn],
         )
         for urn, vals in entity.items():
-            if 'ownership' not in vals:
+            if "ownership" not in vals:
                 break
             ownership = vals["ownership"]
             owners = ownership[0].owners
@@ -38,7 +38,7 @@ def main():
         if urn in dataset_done:
             continue
         dataset_done.add(urn)
-        
+
         owner_aspects = []
         for owner in owners:
             owner: OwnerClass
