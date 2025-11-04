@@ -25,17 +25,29 @@ class DataHubRegistryEntityEntry:
 
 
 @dataclass
+class RelationshipInfo:
+    # Name of the relationship (e.g., "Has", "OwnedBy")
+    name: str
+    # Entity types this relationship can reference
+    entity_types: list[str]
+
+
+@dataclass
 class DataHubIndex:
     # Index of entities that exist with their aspect names
     registry: dict[str, DataHubRegistryEntityEntry]
     # Schemas of aspects
     schemas: dict[str, RecordSchema]
+    # Map of aspect names to their relationships
+    relationships: dict[str, list[RelationshipInfo]]
 
 
 def load_entity_registry() -> DataHubIndex:
     registry: dict[str, DataHubRegistryEntityEntry] = {}
 
     schemas: dict[str, RecordSchema] = {}
+
+    relationships: dict[str, list[str]] = {}
 
     datahub_version = version("acryl-datahub")
     logger.debug(f"Processing version {datahub_version}")
@@ -67,12 +79,76 @@ def load_entity_registry() -> DataHubIndex:
                             f"Aspect: {aspect_name} not found in ASPECT_NAME_MAP"
                         )
 
+    # Extract relationships from schemas
+    for aspect_name, schema in schemas.items():
+        relationship_infos = _extract_relationships(schema)
+        if relationship_infos:
+            relationships[aspect_name] = relationship_infos
+
     logger.info("Finished loading DataHub's Entity Registry")
 
-    return DataHubIndex(registry=registry, schemas=schemas)
+    return DataHubIndex(registry=registry, schemas=schemas, relationships=relationships)
+
+
+def _extract_relationships(schema: RecordSchema) -> list[RelationshipInfo]:
+    """Extract all Relationships from a schema"""
+    relationships = []
+
+    def process_field(field):
+        # Get the field as a JSON dict to examine its properties
+        field_dict = field.to_json()
+
+        # Check if this field has a Relationship property
+        if isinstance(field_dict, dict) and 'Relationship' in field_dict:
+            relationship = field_dict['Relationship']
+            if isinstance(relationship, dict):
+                rel_name = relationship.get('name', '')
+                entity_types = relationship.get('entityTypes', [])
+                if rel_name and entity_types:
+                    relationships.append(RelationshipInfo(
+                        name=rel_name,
+                        entity_types=entity_types
+                    ))
+
+        # Recursively process nested record types
+        field_type = field.type
+        if hasattr(field_type, 'fields'):
+            # It's a record type
+            for nested_field in field_type.fields:
+                process_field(nested_field)
+        elif hasattr(field_type, 'schemas'):
+            # It's a union type
+            for schema_option in field_type.schemas:
+                if hasattr(schema_option, 'fields'):
+                    for nested_field in schema_option.fields:
+                        process_field(nested_field)
+                elif hasattr(schema_option, 'items') and hasattr(schema_option.items, 'fields'):
+                    # It's an array of records
+                    for nested_field in schema_option.items.fields:
+                        process_field(nested_field)
+        elif hasattr(field_type, 'items') and hasattr(field_type.items, 'fields'):
+            # It's an array type with record items
+            for nested_field in field_type.items.fields:
+                process_field(nested_field)
+
+    for field in schema.fields:
+        process_field(field)
+
+    return relationships
 
 
 ## Load DataHub's Entity Registry
 index: DataHubIndex = load_entity_registry()
 
-print((index.schemas.get("datasetKey")))
+print("=== Actors Schema ===")
+print(index.schemas.get("actors"))
+print("\n=== Actors Relationships ===")
+actors_rels = index.relationships.get("actors", [])
+for rel in actors_rels:
+    print(f"  {rel.name}: {rel.entity_types}")
+
+print("\n=== All Relationships ===")
+for aspect_name, relationships in sorted(index.relationships.items()):
+    print(f"\n{aspect_name}:")
+    for rel in relationships:
+        print(f"  {rel.name}: {rel.entity_types}")

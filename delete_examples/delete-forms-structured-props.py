@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 # Connect to the DataHub instance configured in your ~/.datahubenv file.
 client: DataHubGraph = get_default_graph()
 
-dry_run: bool = True # switch this!
+dry_run: bool = True  # switch this!
+
 
 # Utility method to list all assets of a given entity using OpenAPI which is a typed API.
 def scrollEntity(client: DataHubGraph, entity: str, variables: dict) -> Iterable:  # type: ignore
@@ -38,7 +39,7 @@ search_body = {"query": "*", "sort": "urn"}
 form_results = scrollEntity(client, "form", search_body)
 
 for form in form_results:
-    form_urn = form['urn']
+    form_urn = form["urn"]
     references_count, _ = client.delete_references_to_urn(form_urn, dry_run)
     logger.warning(f"{form_urn}, deleted {references_count} references")
     if not dry_run:
@@ -48,8 +49,8 @@ for form in form_results:
 structured_properties_results = scrollEntity(client, "structuredProperty", search_body)
 
 for structured_prop in structured_properties_results:
-    structured_prop_urn = structured_prop['urn'] 
+    structured_prop_urn = structured_prop["urn"]
     references_count, _ = client.delete_references_to_urn(structured_prop_urn, dry_run)
     logger.warning(f"{structured_prop_urn}, deleted {references_count} references")
     if not dry_run:
-        client.delete_entity(structured_prop_urn, hard=True) 
+        client.delete_entity(structured_prop_urn, hard=True)
