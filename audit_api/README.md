@@ -136,7 +136,7 @@ jq '.[] | select(.eventType == "LogInEvent")' audit_logs.json
 - `CreateAccessTokenEvent` - Access token creation
 - `UpdateIngestionSourceEvent` - Ingestion source configuration change
 - `UpdateUserEvent` - User profile update
-- And many more...
+-  And more, see https://docs.datahub.com/docs/actions/events/audit-events-search-guide#createupdatedelete-event-types
 
 ## Requirements
 
