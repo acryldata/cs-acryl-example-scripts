@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import time
 from collections import deque
 from enum import Enum
 from typing import Optional, Iterable, Set
@@ -29,6 +30,9 @@ RELATIONSHIP_OTHER_EDGE_REF = {
     RelationshipDirection.INCOMING: "source",
     RelationshipDirection.OUTGOING: "destination"
 }
+
+EXCEPTIONS_LIMIT = 5
+EXCEPTION_SLEEP_TIME = 60
 
 
 class LineageOpenAPIRetriever:
@@ -74,19 +78,32 @@ class LineageOpenAPIRetriever:
         variables = {
             "relationshipType[]": RELATIONSHIP_TYPES[relationship_direction],
             "direction": relationship_direction.value,
-            "count": 3000
+            "count": 5000,
+            "pitKeepAlive": "1m"
         }
         iter_count = 0
         while True:
             iter_count += 1
             variables["scrollId"] = scroll_id
+            exceptions_count = 0
 
-            try:
-                response: dict = self.client._get_generic(address, variables)
-            except Exception as e:
-                print(f"=== Got exception {e} when trying to retrieve relationships for {urn}, for {iter_count} iteration, stopping iteration for this entity")
-                self.urns_with_exceptions.append(urn)
-                break
+            response: Optional[dict] = None
+            while True:
+                try:
+                    response = self.client._get_generic(address, variables)
+                    break
+                except Exception as e:
+                    print(f"=== Got exception {e} when trying to retrieve relationships for {urn}, for {iter_count} iteration, no of exception in current cycle: {exceptions_count}")
+                    exceptions_count += 1
+                    if exceptions_count > EXCEPTIONS_LIMIT:
+                        self.urns_with_exceptions.append(urn)
+                        break
+                    else:
+                        print(f"Sleeping for {EXCEPTION_SLEEP_TIME} seconds")
+                        time.sleep(EXCEPTION_SLEEP_TIME)
+
+            if not response:
+                continue
 
             scroll_id = response.get("scrollId", None)
             results = response.get("results", [])
